@@ -1,12 +1,47 @@
 namespace SaveTheQueen;
 
-// uzupelnic o character/player/npc po dodaniu tych klas
 public class Cell
 {
     public char Visuals;
+    public Item? Item { get; private set; }
 
-    public void Display()
+   public void Display()
     {
-        Console.Write(Visuals);
+        if (Item != null)
+        {
+            Console.Write(Item.GetAvatar());
+        }
+        else
+        {
+            Console.Write(Visuals);
+        }
+    }
+
+    public bool HasItem() => Item != null;
+
+    public void PutItem(Item item)
+    {
+        Item = item;
+    }
+
+    public Item? TakeItem()
+    {
+        Item? item = Item;
+        Item = null;
+        return item;
+    }
+
+    public bool IsLockedDoor() => Visuals == '+';
+
+    public bool TryUnlock(Inventory inventory)
+    {
+        if (!IsLockedDoor()) return true;
+
+        Item? key = inventory.FindItemWithEffect(ItemEffect.Key);
+        if (key == null) return false;
+
+        inventory.Remove(key);
+        Visuals = '.';
+        return true;
     }
 }

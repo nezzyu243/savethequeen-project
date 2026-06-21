@@ -11,6 +11,8 @@ public abstract class GameObject
         Position = position;
     }
 
+    public char GetAvatar() => Avatar;
+
     public void Display()
     {
         Console.SetCursorPosition(Position.X, Position.Y);

@@ -48,4 +48,20 @@ public class Map
     {
         return _cells[row].Length;
     }
+
+    public List<Vector2> GetFloorPositions()
+    {
+        List<Vector2> positions = [];
+        for (int y = 0; y < GetHeight(); y++)
+        {
+            for (int x = 0; x < GetRowWidth(y); x++)
+            {
+                if (GetCell(x, y).Visuals == '.')
+                {
+                    positions.Add(new Vector2(x, y));
+                }
+            }
+        }
+        return positions;
+    }
 }
