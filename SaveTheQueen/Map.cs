@@ -6,8 +6,9 @@ public class Map
 
     public void LoadFromFile(string path)
     {
-        string[] lines = File.ReadAllLines(path);
-        .Where(line => line.Length > 0)
+        string[] lines = File.ReadAllLines(path)
+            .Where(line => line.Length > 0)
+            .ToArray();
         _cells = new Cell[lines.Length][];
 
         for (var rowIndex = 0; rowIndex < lines.Length; rowIndex++)
@@ -24,7 +25,7 @@ public class Map
 
     public void Display()
     {
-        Console.SetCursorPosition(0, 0);
+        //Console.SetCursorPosition(0, 0);
         foreach (Cell[] row in _cells)
         {
             foreach (Cell cell in row)

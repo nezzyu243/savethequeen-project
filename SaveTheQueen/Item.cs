@@ -16,7 +16,7 @@ public class Item : GameObject
 
     public void PlaceOnMap(Map map)
     {
-        Cell cell = map.GetCell(Position.X, Position.Y);
+        Cell cell = map.GetCell(_position.X, _position.Y);
         cell.PutItem(this);
     }
 
@@ -30,4 +30,9 @@ public class Item : GameObject
             _ => Name
         };
     }
+    public void Display(Vector2 position)
+{
+    Console.SetCursorPosition(position.X, position.Y);
+    Console.Write(Avatar);
+}
 }

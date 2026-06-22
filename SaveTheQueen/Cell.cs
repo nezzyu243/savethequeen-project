@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace SaveTheQueen;
 
 public class Cell
@@ -31,7 +33,7 @@ public class Cell
         return item;
     }
 
-    public bool IsLockedDoor() => Visuals == '+';
+   public bool IsLockedDoor() => Visuals == '(' || Visuals == ')';
 
     public bool TryUnlock(Inventory inventory)
     {
@@ -43,5 +45,10 @@ public class Cell
         inventory.Remove(key);
         Visuals = '.';
         return true;
+    }
+    public void Leave()
+    {
+         Item = null;
+    Visuals = '.';
     }
 }

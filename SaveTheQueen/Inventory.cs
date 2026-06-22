@@ -10,7 +10,6 @@ public class Inventory
         _capacity = capacity;
     }
 
-    public IReadOnlyList<Item> Items => _items;
     public bool IsFull => _items.Count >= _capacity;
 
     public bool Add(Item item)
@@ -20,9 +19,25 @@ public class Inventory
         return true;
     }
 
-    public bool HasItemWithEffect(ItemEffect effect) => _items.Any(i => i.Effect == effect);
+    public bool HasItemWithEffect(ItemEffect effect)
+    {
+        for (int i = 0; i < _items.Count; i++)
+        {
+            if (_items[i].Effect == effect)
+                return true;
+        }
+        return false;
+    }
 
-    public Item? FindItemWithEffect(ItemEffect effect) => _items.FirstOrDefault(i => i.Effect == effect);
+    public Item? FindItemWithEffect(ItemEffect effect)
+    {
+        for (int i = 0; i < _items.Count; i++)
+        {
+            if (_items[i].Effect == effect)
+                return _items[i];
+        }
+        return null;
+    }
 
     public bool Remove(Item item) => _items.Remove(item);
 
@@ -53,5 +68,32 @@ public class Inventory
         }
 
         return result;
+    }
+
+    public void Display()
+    {
+        Console.Clear();
+        Console.WriteLine("=== EKWIPUNEK ===");
+
+        if (_items.Count == 0)
+        {
+            Console.WriteLine("(pusto)");
+        }
+        else
+        {
+            for (int i = 0; i < _items.Count; i++)
+            {
+                Console.WriteLine($"{i + 1}. {_items[i]}");
+            }
+        }
+
+        Console.WriteLine();
+        Console.WriteLine("Wcisnij dowolny klawisz, aby wrocic...");
+    }
+
+    public void Hide(Map map)
+    {
+        Console.Clear();
+        map.Display();
     }
 }
