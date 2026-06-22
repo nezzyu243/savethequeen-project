@@ -7,12 +7,15 @@ public abstract class Character : GameObject
     protected Inventory _inventory;
     protected Map _map = null!;
 
-    public Character(char avatar, Vector2 startingPosition, Map map) : base(avatar, startingPosition)
-    {
-        _inventory = new Inventory();
+  public Character(char avatar, Vector2 startingPosition, Map map)
+    : base(avatar, startingPosition)
+{
+    _inventory = new Inventory();
+    _map = map;
+
+   
+}
     
-    Cell cell = map.GetCell(_position.X, _position.Y);
-    }
     public bool Move(Vector2 direction, Map map)
     {
         return Move(direction.X, direction.Y, map);

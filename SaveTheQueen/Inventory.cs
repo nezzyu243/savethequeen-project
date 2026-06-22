@@ -91,9 +91,8 @@ public class Inventory
         Console.WriteLine("Wcisnij dowolny klawisz, aby wrocic...");
     }
 
-    public void Hide(Map map)
-    {
-        Console.Clear();
-        map.Display();
-    }
+   public void Hide()
+{
+    Console.Clear();
+}
 }
