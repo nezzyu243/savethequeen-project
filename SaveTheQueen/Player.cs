@@ -22,15 +22,7 @@ public class Player : Character
         {
             Vector2 direction = _inputMap[input.Key];
 
-            bool moved = Move(direction, map);
-
-            if (moved)
-            {
-                Cell newCell = map.GetCell(_position.X, _position.Y);
-
-                newCell.Leave();
-                newCell.Display();
-            }
+            Move(direction, map);
         }
         else
         {
