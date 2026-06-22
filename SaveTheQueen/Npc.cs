@@ -1,4 +1,5 @@
 namespace SaveTheQueen;
+
 public class Npc : Character
 {
     private readonly List<Vector2> availableDirections = new List<Vector2>
@@ -16,24 +17,19 @@ public class Npc : Character
 
     public override bool TakeTurn(Map map)
     {
-        Console.SetCursorPosition(_position.X, _position.Y);
-
-        Cell cell = map.GetCell(_position.X, _position.Y);
+        Vector2 oldPosition = _position;
 
         Random random = new Random();
         int index = random.Next(availableDirections.Count);
-
         Vector2 direction = availableDirections[index];
 
         if (Move(direction, map))
         {
-            Cell newCell = map.GetCell(_position.X, _position.Y);
-            newCell.Leave();
-            newCell.Display();
+            Console.SetCursorPosition(oldPosition.X, oldPosition.Y);
+            map.GetCell(oldPosition.X, oldPosition.Y).Leave();
         }
 
         Display();
-
         return true;
     }
 }

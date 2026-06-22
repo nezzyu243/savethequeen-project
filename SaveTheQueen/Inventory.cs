@@ -10,7 +10,6 @@ public class Inventory
         _capacity = capacity;
     }
 
-   
     public bool IsFull => _items.Count >= _capacity;
 
     public bool Add(Item item)
@@ -21,26 +20,24 @@ public class Inventory
     }
 
     public bool HasItemWithEffect(ItemEffect effect)
-{
-    for (int i = 0; i < _items.Count; i++)
     {
-        if (_items[i].Effect == effect)
-            return true;
+        for (int i = 0; i < _items.Count; i++)
+        {
+            if (_items[i].Effect == effect)
+                return true;
+        }
+        return false;
     }
 
-    return false;
-}
-
-public Item? FindItemWithEffect(ItemEffect effect)
-{
-    for (int i = 0; i < _items.Count; i++)
+    public Item? FindItemWithEffect(ItemEffect effect)
     {
-        if (_items[i].Effect == effect)
-            return _items[i];
+        for (int i = 0; i < _items.Count; i++)
+        {
+            if (_items[i].Effect == effect)
+                return _items[i];
+        }
+        return null;
     }
-
-    return null;
-}
 
     public bool Remove(Item item) => _items.Remove(item);
 
@@ -51,31 +48,52 @@ public Item? FindItemWithEffect(ItemEffect effect)
         _items.RemoveAt(index);
         return item;
     }
-     public void Display()
+
+    public string UseItem(int index)
     {
-        int x = 30;
-        int y = 0;
+        Item? item = _items.ElementAtOrDefault(index);
+        if (item == null) return "Nie masz takiego przedmiotu.";
 
-        Console.SetCursorPosition(x, y);
-        Console.WriteLine("Inventory:");
-
-        y++;
-
-        for (int i = 0; i < _items.Count; i++)
+        string result = item.Effect switch
         {
-            _items[i].Display(new Vector2(x, y));
-            y++;
-        }
-    }
-    public void Hide()
-{
-    int x = 30;
+            ItemEffect.Heal => $"Uzywasz {item.Name}, leczysz {item.Value} HP. (TODO: podlaczyc do Player.HP)",
+            ItemEffect.Gold => $"Sprzedajesz {item.Name} za {item.Value} zlota. (TODO: podlaczyc do Player.Gold)",
+            ItemEffect.Key => "Klucze uzywaja sie same przy zamknietych drzwiach.",
+            _ => "Nic sie nie stalo."
+        };
 
-    for (int y = 0; y < _items.Count + 1; y++)
-    {
-        Console.SetCursorPosition(x, y);
-        Console.WriteLine("                        ");
+        if (item.Effect != ItemEffect.Key)
+        {
+            Remove(item);
+        }
+
+        return result;
     }
-    
-}
+
+    public void Display()
+    {
+        Console.Clear();
+        Console.WriteLine("=== EKWIPUNEK ===");
+
+        if (_items.Count == 0)
+        {
+            Console.WriteLine("(pusto)");
+        }
+        else
+        {
+            for (int i = 0; i < _items.Count; i++)
+            {
+                Console.WriteLine($"{i + 1}. {_items[i]}");
+            }
+        }
+
+        Console.WriteLine();
+        Console.WriteLine("Wcisnij dowolny klawisz, aby wrocic...");
+    }
+
+    public void Hide(Map map)
+    {
+        Console.Clear();
+        map.Display();
+    }
 }

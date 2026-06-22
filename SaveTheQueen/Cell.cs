@@ -33,7 +33,7 @@ public class Cell
         return item;
     }
 
-    public bool IsLockedDoor() => Visuals == '+';
+   public bool IsLockedDoor() => Visuals == '(' || Visuals == ')';
 
     public bool TryUnlock(Inventory inventory)
     {

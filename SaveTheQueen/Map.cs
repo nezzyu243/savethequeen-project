@@ -6,7 +6,9 @@ public class Map
 
     public void LoadFromFile(string path)
     {
-        string[] lines = File.ReadAllLines(path);
+        string[] lines = File.ReadAllLines(path)
+            .Where(line => line.Length > 0)
+            .ToArray();
         _cells = new Cell[lines.Length][];
 
         for (var rowIndex = 0; rowIndex < lines.Length; rowIndex++)
