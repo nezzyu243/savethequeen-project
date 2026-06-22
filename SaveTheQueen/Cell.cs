@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace SaveTheQueen;
 
 public class Cell
@@ -43,5 +45,10 @@ public class Cell
         inventory.Remove(key);
         Visuals = '.';
         return true;
+    }
+    public void Leave()
+    {
+         Item = null;
+    Visuals = '.';
     }
 }

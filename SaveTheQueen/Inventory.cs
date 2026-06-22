@@ -10,7 +10,7 @@ public class Inventory
         _capacity = capacity;
     }
 
-    public IReadOnlyList<Item> Items => _items;
+   
     public bool IsFull => _items.Count >= _capacity;
 
     public bool Add(Item item)
@@ -20,9 +20,27 @@ public class Inventory
         return true;
     }
 
-    public bool HasItemWithEffect(ItemEffect effect) => _items.Any(i => i.Effect == effect);
+    public bool HasItemWithEffect(ItemEffect effect)
+{
+    for (int i = 0; i < _items.Count; i++)
+    {
+        if (_items[i].Effect == effect)
+            return true;
+    }
 
-    public Item? FindItemWithEffect(ItemEffect effect) => _items.FirstOrDefault(i => i.Effect == effect);
+    return false;
+}
+
+public Item? FindItemWithEffect(ItemEffect effect)
+{
+    for (int i = 0; i < _items.Count; i++)
+    {
+        if (_items[i].Effect == effect)
+            return _items[i];
+    }
+
+    return null;
+}
 
     public bool Remove(Item item) => _items.Remove(item);
 
@@ -33,4 +51,31 @@ public class Inventory
         _items.RemoveAt(index);
         return item;
     }
+     public void Display()
+    {
+        int x = 30;
+        int y = 0;
+
+        Console.SetCursorPosition(x, y);
+        Console.WriteLine("Inventory:");
+
+        y++;
+
+        for (int i = 0; i < _items.Count; i++)
+        {
+            _items[i].Display(new Vector2(x, y));
+            y++;
+        }
+    }
+    public void Hide()
+{
+    int x = 30;
+
+    for (int y = 0; y < _items.Count + 1; y++)
+    {
+        Console.SetCursorPosition(x, y);
+        Console.WriteLine("                        ");
+    }
+    
+}
 }

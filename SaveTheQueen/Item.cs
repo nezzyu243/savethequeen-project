@@ -30,4 +30,9 @@ public class Item : GameObject
             _ => Name
         };
     }
+    public void Display(Vector2 position)
+{
+    Console.SetCursorPosition(position.X, position.Y);
+    Console.Write(Avatar);
+}
 }
