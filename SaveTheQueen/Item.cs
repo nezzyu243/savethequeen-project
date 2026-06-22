@@ -16,7 +16,7 @@ public class Item : GameObject
 
     public void PlaceOnMap(Map map)
     {
-        Cell cell = map.GetCell(Position.X, Position.Y);
+        Cell cell = map.GetCell(_position.X, _position.Y);
         cell.PutItem(this);
     }
 
