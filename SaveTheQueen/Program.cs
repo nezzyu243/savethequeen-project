@@ -17,5 +17,10 @@ public class Program
         {
             Console.WriteLine($" - {item}");
         }
+        
+        Inventory inventory = new Inventory();
+        inventory.Add(items[0]);
+        Console.WriteLine();
+        Console.WriteLine(inventory.UseItem(0));
     }
 }

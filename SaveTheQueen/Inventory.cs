@@ -33,4 +33,25 @@ public class Inventory
         _items.RemoveAt(index);
         return item;
     }
+
+    public string UseItem(int index)
+    {
+        Item? item = _items.ElementAtOrDefault(index);
+        if (item == null) return "Nie masz takiego przedmiotu.";
+
+        string result = item.Effect switch
+        {
+            ItemEffect.Heal => $"Uzywasz {item.Name}, leczysz {item.Value} HP. (TODO: podlaczyc do Player.HP)",
+            ItemEffect.Gold => $"Sprzedajesz {item.Name} za {item.Value} zlota. (TODO: podlaczyc do Player.Gold)",
+            ItemEffect.Key => "Klucze uzywaja sie same przy zamknietych drzwiach.",
+            _ => "Nic sie nie stalo."
+        };
+
+        if (item.Effect != ItemEffect.Key)
+        {
+            Remove(item);
+        }
+
+        return result;
+    }
 }
