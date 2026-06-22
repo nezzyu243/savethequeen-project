@@ -23,7 +23,7 @@ public class Map
 
     public void Display()
     {
-        Console.SetCursorPosition(0, 0);
+        //Console.SetCursorPosition(0, 0);
         foreach (Cell[] row in _cells)
         {
             foreach (Cell cell in row)
