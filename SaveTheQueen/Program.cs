@@ -4,6 +4,7 @@ public class Program
 {
     public static void Main()
     {
+        Console.Clear();
         Console.CursorVisible = false;
 
         Map map = new Map();
@@ -38,18 +39,27 @@ public class Program
         foreach (Character c in characters)
             c.Display();
 
-        bool isPlaying = true;
+       bool isPlaying = true;
 
-        while (isPlaying)
-        {
-            foreach (Character c in characters)
-            {
-                isPlaying = c.TakeTurn(map);
-                if (!isPlaying) break;
-            }
-        }
+while (isPlaying)
+{
+    foreach (Character c in characters)
+    {
+        isPlaying = c.TakeTurn(map);
+        if (!isPlaying) break;
+    }
+
+    Console.SetCursorPosition(0, 0); 
+
+    map.Display();
+
+    foreach (Character c in characters)
+    {
+        c.Display();
+    }
+}
 
         Console.SetCursorPosition(0, map.GetHeight() + 1);
         Console.WriteLine("Do widzenia!");
     }
-}
+} 

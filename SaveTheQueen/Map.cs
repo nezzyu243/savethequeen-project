@@ -23,19 +23,20 @@ public class Map
         }
     }
 
-    public void Display()
-    {
-        //Console.SetCursorPosition(0, 0);
-        foreach (Cell[] row in _cells)
-        {
-            foreach (Cell cell in row)
-            {
-                cell.Display();
-            }
-            Console.WriteLine();
-        }
-    }
+   public void Display()
+{
+    Console.SetCursorPosition(0, 0);
 
+    for (int y = 0; y < _cells.Length; y++)
+    {
+        for (int x = 0; x < _cells[y].Length; x++)
+        {
+            Console.Write(_cells[y][x].Visuals);
+        }
+
+         Console.Write('\n');
+    }
+}
     public Cell GetCell(int x, int y)
     {
         return _cells[y][x];

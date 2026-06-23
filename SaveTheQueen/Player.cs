@@ -16,7 +16,6 @@ public class Player : Character
 
         var input = Console.ReadKey(true);
 
-        Console.SetCursorPosition(_position.X, _position.Y);
 
         if (_inputMap.ContainsKey(input.Key))
         {
@@ -40,7 +39,6 @@ public class Player : Character
             }
         }
 
-        Display();
 
         return isPlaying;
     }

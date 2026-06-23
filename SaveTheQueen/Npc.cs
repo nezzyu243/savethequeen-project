@@ -24,17 +24,18 @@ public Npc(char avatar, Map map)
     {
         Vector2 oldPosition = _position;
 
-        Random random = new Random();
-        int index = random.Next(availableDirections.Count);
+        
+       int index = Random.Shared.Next(availableDirections.Count);
         Vector2 direction = availableDirections[index];
 
         if (Move(direction, map))
         {
-            Console.SetCursorPosition(oldPosition.X, oldPosition.Y);
-            map.GetCell(oldPosition.X, oldPosition.Y).Leave();
+           Console.SetCursorPosition(oldPosition.X, oldPosition.Y);
+
+           Console.Write(map.GetCell(oldPosition.X, oldPosition.Y).Visuals);
         }
 
-        Display();
+        
         return true;
     }
 }
