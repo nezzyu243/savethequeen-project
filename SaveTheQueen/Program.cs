@@ -22,10 +22,10 @@ public class Program
         List<Vector2> floors = map.GetFloorPositions();
 
         Vector2 playerPos = floors[Random.Shared.Next(floors.Count)];
-        Vector2 npcPos = floors[Random.Shared.Next(floors.Count)];
+        
 
         Player player = new Player('@', playerPos, map, inputMap);
-        Npc npc = new Npc('$', npcPos, map);
+       Npc npc = new Npc('$', map);
 
         List<Character> characters = new()
         {
