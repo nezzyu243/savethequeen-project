@@ -31,7 +31,7 @@ public class Map
     {
         for (int x = 0; x < _cells[y].Length; x++)
         {
-            Console.Write(_cells[y][x].Visuals);
+             _cells[y][x].Display();
         }
 
          Console.Write('\n');

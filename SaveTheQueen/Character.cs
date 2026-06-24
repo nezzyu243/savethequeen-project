@@ -38,15 +38,14 @@ public abstract class Character : GameObject
             _position.X = targetX;
             _position.Y = targetY;
 
-            if (cell.HasItem())
-            {
-                Item? item = cell.TakeItem();
-                
-                if (item != null)
+           if (this is Player && cell.HasItem())
+         {
 
-                AddItem(item);
-            
-            }
+          Item? item = cell.TakeItem();
+
+          if (item != null)
+          AddItem(item);
+         }
             return true;
     }
     return false;
