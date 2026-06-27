@@ -1,5 +1,3 @@
-
-
 namespace SaveTheQueen;
 
 public abstract class Character : GameObject
@@ -7,50 +5,51 @@ public abstract class Character : GameObject
     protected Inventory _inventory;
     protected Map _map = null!;
 
-  public Character(char avatar, Vector2 startingPosition, Map map)
-    : base(avatar, startingPosition)
-{
-    _inventory = new Inventory();
-    _map = map;
+    public Character(char avatar, Vector2 startingPosition, Map map)
+        : base(avatar, startingPosition)
+    {
+        _inventory = new Inventory();
+        _map = map;
+    }
 
-   
-}
-    
     public bool Move(Vector2 direction, Map map)
     {
         return Move(direction.X, direction.Y, map);
     }
+
     public bool Move(int diffX, int diffY, Map map)
     {
         int targetX = _position.X + diffX;
         int targetY = _position.Y + diffY;
 
-         if (targetY >= 0 && targetY < map.GetHeight() &&
+        if (targetY >= 0 && targetY < map.GetHeight() &&
             targetX >= 0 && targetX < map.GetRowWidth(targetY))
-         
-         {
+        {
             Cell cell = map.GetCell(targetX, targetY);
 
             if (cell.Visuals == '#')
-            return false; 
+                return false;
 
+            if (cell.IsLockedDoor() && !cell.TryUnlock(_inventory))
+                return false;
 
             _position.X = targetX;
             _position.Y = targetY;
 
-           if (this is Player && cell.HasItem())
-         {
+            if (this is Player && cell.HasItem())
+            {
+                Item? item = cell.TakeItem();
+                if (item != null)
+                    AddItem(item);
+            }
 
-          Item? item = cell.TakeItem();
-
-          if (item != null)
-          AddItem(item);
-         }
             return true;
+        }
+
+        return false;
     }
-    return false;
-}
-public void AddItem(Item item)
+
+    public void AddItem(Item item)
     {
         _inventory.Add(item);
     }

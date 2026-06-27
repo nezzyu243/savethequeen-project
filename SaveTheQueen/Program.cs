@@ -21,12 +21,10 @@ public class Program
         };
 
         List<Vector2> floors = map.GetFloorPositions();
-
         Vector2 playerPos = floors[Random.Shared.Next(floors.Count)];
-        
 
         Player player = new Player('@', playerPos, map, inputMap);
-       Npc npc = new Npc('$', map);
+        Npc npc = new Npc('$', map);
 
         List<Character> characters = new()
         {
@@ -35,31 +33,29 @@ public class Program
         };
 
         map.Display();
-
         foreach (Character c in characters)
             c.Display();
 
-       bool isPlaying = true;
+        bool isPlaying = true;
 
-while (isPlaying)
-{
-    foreach (Character c in characters)
-    {
-        isPlaying = c.TakeTurn(map);
-        if (!isPlaying) break;
-    }
+        while (isPlaying)
+        {
+            foreach (Character c in characters)
+            {
+                isPlaying = c.TakeTurn(map);
+                if (!isPlaying) break;
+            }
 
-    Console.SetCursorPosition(0, 0); 
+            Console.Clear();
+            map.Display();
 
-    map.Display();
+            foreach (Character c in characters)
+            {
+                c.Display();
+            }
+        }
 
-    foreach (Character c in characters)
-    {
-        c.Display();
-    }
-}
-
-        Console.SetCursorPosition(0, map.GetHeight() + 1);
+        Console.Clear();
         Console.WriteLine("Do widzenia!");
     }
-} 
+}

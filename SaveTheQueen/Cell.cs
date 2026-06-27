@@ -47,8 +47,9 @@ public class Cell
         return true;
     }
     public void Leave()
-    {
-         Item = null;
+{
+    Item = null;
     Visuals = '.';
-    }
+    Console.Write(Visuals);
+}
 }

@@ -10,11 +10,12 @@ public class Npc : Character
         new Vector2(0, 1)
     };
 
-public Npc(char avatar, Map map)
-    : base(avatar, GetRandomPosition(map), map)
-{
-}
- private static Vector2 GetRandomPosition(Map map)
+    public Npc(char avatar, Map map)
+        : base(avatar, GetRandomPosition(map), map)
+    {
+    }
+
+    private static Vector2 GetRandomPosition(Map map)
     {
         List<Vector2> floors = map.GetFloorPositions();
         return floors[Random.Shared.Next(floors.Count)];
@@ -22,20 +23,9 @@ public Npc(char avatar, Map map)
 
     public override bool TakeTurn(Map map)
     {
-        Vector2 oldPosition = _position;
-
-        
-       int index = Random.Shared.Next(availableDirections.Count);
+        int index = Random.Shared.Next(availableDirections.Count);
         Vector2 direction = availableDirections[index];
-
-        if (Move(direction, map))
-        {
-           Console.SetCursorPosition(oldPosition.X, oldPosition.Y);
-
-           Console.Write(map.GetCell(oldPosition.X, oldPosition.Y).Visuals);
-        }
-
-        
+        Move(direction, map);
         return true;
     }
 }
