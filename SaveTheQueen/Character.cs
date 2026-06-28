@@ -5,11 +5,30 @@ public abstract class Character : GameObject
     protected Inventory _inventory;
     protected Map _map = null!;
 
-    public Character(char avatar, Vector2 startingPosition, Map map)
+    public int MaxHP { get; }
+    public int HP { get; protected set; }
+    public bool IsAlive => HP > 0;
+
+    public Character(char avatar, Vector2 startingPosition, Map map, int maxHp = 10)
         : base(avatar, startingPosition)
     {
         _inventory = new Inventory();
         _map = map;
+        MaxHP = maxHp;
+        HP = maxHp;
+    }
+
+    public void TakeDamage(int amount)
+    {
+        HP -= amount;
+        if (HP < 0) HP = 0;
+    }
+
+    public Vector2 GetPosition() => _position;
+
+    public void SetPosition(Vector2 position)
+    {
+        _position = position;
     }
 
     public bool Move(Vector2 direction, Map map)
@@ -54,5 +73,5 @@ public abstract class Character : GameObject
         _inventory.Add(item);
     }
 
-    public abstract bool TakeTurn(Map map);
+    public abstract bool TakeTurn(Map map, List<Character> others);
 }

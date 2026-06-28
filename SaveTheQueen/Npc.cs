@@ -10,9 +10,12 @@ public class Npc : Character
         new Vector2(0, 1)
     };
 
-    public Npc(char avatar, Map map)
-        : base(avatar, GetRandomPosition(map), map)
+    public bool IsHostile { get; }
+
+    public Npc(char avatar, Map map, bool isHostile, int maxHp = 10)
+        : base(avatar, GetRandomPosition(map), map, maxHp)
     {
+        IsHostile = isHostile;
     }
 
     private static Vector2 GetRandomPosition(Map map)
@@ -21,8 +24,10 @@ public class Npc : Character
         return floors[Random.Shared.Next(floors.Count)];
     }
 
-    public override bool TakeTurn(Map map)
+    public override bool TakeTurn(Map map, List<Character> others)
     {
+        if (!IsAlive) return true;
+
         int index = Random.Shared.Next(availableDirections.Count);
         Vector2 direction = availableDirections[index];
         Move(direction, map);

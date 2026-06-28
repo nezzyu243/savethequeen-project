@@ -7,11 +7,6 @@ public class Program
         Console.Clear();
         Console.CursorVisible = false;
 
-        Map map = new Map();
-        map.LoadFromFile("level1.txt");
-
-        ItemSpawner.SpawnRandomItems(map, 5);
-
         var inputMap = new Dictionary<ConsoleKey, Vector2>
         {
             { ConsoleKey.W, new Vector2(0, -1) },
@@ -20,42 +15,88 @@ public class Program
             { ConsoleKey.D, new Vector2(1, 0) }
         };
 
+        string[] levelFiles = { "level1.txt", "level2.txt" };
+        int currentLevel = 0;
+
+        Map map = new Map();
+        map.LoadFromFile(levelFiles[currentLevel]);
+        ItemSpawner.SpawnRandomItems(map, 5);
+
         List<Vector2> floors = map.GetFloorPositions();
         Vector2 playerPos = floors[Random.Shared.Next(floors.Count)];
-
         Player player = new Player('@', playerPos, map, inputMap);
-        Npc npc = new Npc('$', map);
 
-        List<Character> characters = new()
+        List<Character> npcs = new()
         {
-            player,
-            npc
+            new Npc('g', map, isHostile: true)
         };
-
-        map.Display();
-        foreach (Character c in characters)
-            c.Display();
 
         bool isPlaying = true;
 
         while (isPlaying)
         {
-            foreach (Character c in characters)
+            Draw(map, player, npcs);
+
+            isPlaying = player.TakeTurn(map, npcs);
+
+            if (player.HP <= 0)
             {
-                isPlaying = c.TakeTurn(map);
-                if (!isPlaying) break;
+                Console.Clear();
+                Console.WriteLine("Zginelas w podziemiach. KONIEC GRY.");
+                break;
             }
 
-            Console.Clear();
-            map.Display();
-
-            foreach (Character c in characters)
+            if (player.HasWon)
             {
-                c.Display();
+                Console.Clear();
+                Console.WriteLine("Uratowalas Krolowa! WYGRANA!");
+                break;
+            }
+
+            if (!isPlaying) break;
+
+            if (player.ReachedStairs && currentLevel < levelFiles.Length - 1)
+            {
+                currentLevel++;
+                map = new Map();
+                map.LoadFromFile(levelFiles[currentLevel]);
+                ItemSpawner.SpawnRandomItems(map, 5);
+
+                floors = map.GetFloorPositions();
+                player.SetPosition(floors[Random.Shared.Next(floors.Count)]);
+
+                npcs.Clear();
+                npcs.Add(new Npc('Q', map, isHostile: false));
+            }
+
+            foreach (Character npc in npcs.ToList())
+            {
+                if (!isPlaying) break;
+                isPlaying = npc.TakeTurn(map, npcs);
             }
         }
+    }
 
+    private static void Draw(Map map, Player player, List<Character> npcs)
+    {
         Console.Clear();
-        Console.WriteLine("Do widzenia!");
+        map.Display();
+        player.Display();
+
+        foreach (Character npc in npcs)
+        {
+            npc.Display();
+        }
+
+        Console.SetCursorPosition(0, map.GetHeight());
+        Console.WriteLine();
+        Console.WriteLine($"HP: {player.HP}/{player.MaxHP}");
+
+        if (!string.IsNullOrEmpty(player.LastMessage))
+        {
+            Console.WriteLine(player.LastMessage);
+        }
+
+        Console.WriteLine("WASD - ruch | I - ekwipunek | Q - wyjscie");
     }
 }
