@@ -42,6 +42,12 @@ public class Player : Character
                     Cell cell = map.GetCell(_position.X, _position.Y);
                     if (cell.IsStairs())
                         ReachedStairs = true;
+                        Npc? targetAfterMove = FindNpcAt(others, _position.X, _position.Y);
+
+                        if (targetAfterMove != null)
+                    {
+                        Fight(targetAfterMove, others);
+                    }
                 }
             }
         }
@@ -75,32 +81,45 @@ public class Player : Character
         return null;
     }
 
-    private void Fight(Npc npc, List<Character> others)
+   private void Fight(Npc npc, List<Character> others)
+{
+    if (!npc.IsHostile)
     {
-        if (!npc.IsHostile)
-        {
-            HasWon = true;
-            LastMessage = "Uratowalas Krolowa! WYGRANA!";
-            return;
-        }
-
-        const int playerDamage = 4;
-        const int npcDamage = 2;
-
-        npc.TakeDamage(playerDamage);
-        LastMessage = $"Zadajesz {playerDamage} obrazen.";
-
-        if (!npc.IsAlive)
-        {
-            others.Remove(npc);
-            LastMessage += " Wrog pokonany!";
-        }
-        else
-        {
-            TakeDamage(npcDamage);
-            LastMessage += $" Wrog odpowiada za {npcDamage} obrazen.";
-        }
+        HasWon = true;
+        LastMessage = "Uratowalas Krolowa! WYGRANA!";
+        return;
     }
+
+    Console.WriteLine();
+    LastMessage = "Wróg patrzy na Ciebie groźnym spojrzeniem, przygotuj się na starcie!";
+    Console.WriteLine();
+    Console.WriteLine("NPC: Nigdy nie zdobędziesz księżniczki, nie oddam Ci jej bez walki!");
+    Console.WriteLine("Zaczyna się pojedynek!");
+    Console.ReadKey(true);
+
+    bool playerWon = PlayRps(npc);
+    if (playerWon)
+{
+    npc.TakeDamage(1);
+    LastMessage = "Wygrana runda!";
+}
+else
+{
+    TakeDamage(3);
+    LastMessage = "Przegrana runda!";
+}
+
+if (!npc.IsAlive)
+{
+    others.Remove(npc);
+    LastMessage = "Pokonano wroga!";
+}
+    else
+    {
+        TakeDamage(3);
+        LastMessage = "Przegrana walka!";
+    }
+}
 
     private void ShowInventoryMenu()
     {
@@ -135,4 +154,75 @@ public class Player : Character
 
         _inventory.Hide();
     }
+    private bool PlayRps(Npc npc)
+{
+    List<string> allowedSigns = new() { "rock", "paper", "scissors" };
+    string endGameCommand = "exit";
+
+    int playerPoints = 0;
+    int npcPoints = 0;
+
+    Console.WriteLine();
+    Console.WriteLine("WALKA RPS (BEST OF 3)");
+    Console.WriteLine("rock / paper / scissors lub exit\n");
+
+    while (playerPoints < 2 && npcPoints < 2)
+    {
+        string firstSign;
+
+        do
+        {
+            Console.WriteLine("Twój ruch:");
+            firstSign = Console.ReadLine()?.Trim().ToLower() ?? "";
+        }
+        while (firstSign != endGameCommand && !allowedSigns.Contains(firstSign));
+
+        if (firstSign == endGameCommand)
+            return false;
+
+      string secondSign = allowedSigns[Random.Shared.Next(allowedSigns.Count)];
+      secondSign = secondSign.ToLower();
+
+        Console.WriteLine($"NPC: {secondSign}");
+
+        if (firstSign == secondSign)
+        {
+            Console.WriteLine("Remis!");
+        }
+        else
+        {
+            int firstIndex = allowedSigns.IndexOf(firstSign);
+            int secondIndex = allowedSigns.IndexOf(secondSign);
+
+            int winningIndex = (secondIndex + 1) % allowedSigns.Count;
+            string winningSign = allowedSigns[winningIndex];
+
+            if (firstSign == winningSign)
+            {
+                Console.WriteLine("Wygrywasz rundę!");
+                playerPoints++;
+            }
+            else
+            {
+                Console.WriteLine("NPC wygrywa rundę!");
+                npcPoints++;
+            }
+        }
+
+        Console.WriteLine($"Wynik: Ty {playerPoints} - {npcPoints} NPC\n");
+    }
+
+   Console.WriteLine("KONIEC WALKI!");
+   Console.WriteLine("Kliknij dowolny klawisz...");
+   Console.ReadKey(true);
+
+    return playerPoints > npcPoints;
+}
+}
+
+public enum RpsChoice
+{
+    Rock,
+    Paper,
+    Scissors
 }
