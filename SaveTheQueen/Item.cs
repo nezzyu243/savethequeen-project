@@ -23,12 +23,13 @@ public class Item : GameObject
     public override string ToString()
     {
         return Effect switch
-        {
-            ItemEffect.Heal => $"{Name} (leczy {Value} HP)",
-            ItemEffect.Key => $"{Name} (otwiera zamkniete drzwi)",
-            ItemEffect.Gold => $"{Name} (wart {Value} zlota)",
-            _ => Name
-        };
+{
+    ItemEffect.Heal => $"{Name} (leczy {Value} HP)",
+    ItemEffect.Key => $"{Name} (otwiera zamkniete drzwi)",
+    ItemEffect.Gold => $"{Name} (wart {Value} zlota)",
+    ItemEffect.PrincessNecklace => $"{Name} (zdobywasz serce księżniczki)",
+    _ => Name
+};
     }
     public void Display(Vector2 position)
 {

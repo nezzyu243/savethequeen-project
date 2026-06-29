@@ -14,8 +14,10 @@ public abstract class GameObject
     public char GetAvatar() => Avatar;
 
     public void Display()
-    {
-        Console.SetCursorPosition(_position.X, _position.Y);
-        Console.Write(Avatar);
-    }
+   {
+    if (_position.X < 0 || _position.Y < 0) return;
+
+    Console.SetCursorPosition(_position.X, _position.Y);
+    Console.Write(Avatar);
+   }
 }

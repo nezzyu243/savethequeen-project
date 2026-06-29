@@ -94,14 +94,16 @@ public class Player : Character
     LastMessage = "Wróg patrzy na Ciebie groźnym spojrzeniem, przygotuj się na starcie!";
     Console.WriteLine();
     Console.WriteLine("NPC: Nigdy nie zdobędziesz księżniczki, nie oddam Ci jej bez walki!");
+
     Console.WriteLine("Zaczyna się pojedynek!");
     Console.ReadKey(true);
 
     bool playerWon = PlayRps(npc);
+
     if (playerWon)
 {
-    npc.TakeDamage(1);
-    LastMessage = "Wygrana runda!";
+    npc.TakeDamage(npc.HP);
+    LastMessage = "Wygrana walka!";
 }
 else
 {
@@ -111,14 +113,23 @@ else
 
 if (!npc.IsAlive)
 {
-    others.Remove(npc);
-    LastMessage = "Pokonano wroga!";
+    npc.TakeDamage(npc.HP);
+    npc.SetPosition(new Vector2(-1, -1));
+
+    Item necklace = new Item(
+        'N',
+        npc.GetPosition(),
+        "Naszyjnik księżniczki",
+        ItemEffect.PrincessNecklace,
+        0
+    );
+
+    _inventory.Add(necklace);
+
+    LastMessage = "Pokonałeś wroga i zdobyłeś naszyjnik księżniczki!";
+    Console.WriteLine(LastMessage);
+    Console.ReadKey(true);
 }
-    else
-    {
-        TakeDamage(3);
-        LastMessage = "Przegrana walka!";
-    }
 }
 
     private void ShowInventoryMenu()
@@ -163,7 +174,7 @@ if (!npc.IsAlive)
     int npcPoints = 0;
 
     Console.WriteLine();
-    Console.WriteLine("WALKA RPS (BEST OF 3)");
+    Console.WriteLine("WALKA RPS (do 2)");
     Console.WriteLine("rock / paper / scissors lub exit\n");
 
     while (playerPoints < 2 && npcPoints < 2)
@@ -203,10 +214,12 @@ if (!npc.IsAlive)
                 playerPoints++;
             }
             else
-            {
-                Console.WriteLine("NPC wygrywa rundę!");
-                npcPoints++;
-            }
+           {
+              Console.WriteLine("NPC wygrywa rundę!");
+              npcPoints++;
+
+             TakeDamage(1);
+           }
         }
 
         Console.WriteLine($"Wynik: Ty {playerPoints} - {npcPoints} NPC\n");

@@ -2,7 +2,8 @@ namespace SaveTheQueen;
 
 public enum ItemEffect
 {
-    Heal, 
-    Key,  
-    Gold  
+    Heal,
+    Key,
+    Gold,
+    PrincessNecklace
 }
