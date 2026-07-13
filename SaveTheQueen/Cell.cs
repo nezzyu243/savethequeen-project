@@ -1,5 +1,3 @@
-using System.Runtime.CompilerServices;
-
 namespace SaveTheQueen;
 
 public class Cell
@@ -7,7 +5,7 @@ public class Cell
     public char Visuals;
     public Item? Item { get; private set; }
 
-   public void Display()
+    public void Display()
     {
         if (Item != null)
         {
@@ -19,7 +17,10 @@ public class Cell
         }
     }
 
-    public bool HasItem() => Item != null;
+    public bool HasItem()
+    {
+        return Item != null;
+    }
 
     public void PutItem(Item item)
     {
@@ -33,24 +34,48 @@ public class Cell
         return item;
     }
 
-public bool IsStairs() => Visuals == '>';
-   public bool IsLockedDoor() => Visuals == '(' || Visuals == ')';
+    public bool IsStairs()
+    {
+        return Visuals == '>';
+    }
+
+    public bool IsLockedDoor()
+    {
+        return Visuals == '(' || Visuals == ')';
+    }
+
+    public bool IsOpenCastleEntrance()
+    {
+        return Visuals == '/';
+    }
 
     public bool TryUnlock(Inventory inventory)
     {
-        if (!IsLockedDoor()) return true;
+        if (!IsLockedDoor())
+        {
+            return true;
+        }
 
-        Item? key = inventory.FindItemWithEffect(ItemEffect.Key);
-        if (key == null) return false;
+        Item? key =
+            inventory.FindItemWithEffect(ItemEffect.Key);
+
+        if (key == null)
+        {
+            return false;
+        }
 
         inventory.Remove(key);
-        Visuals = '.';
+
+        // Otwarte wejście do zamku.
+        Visuals = '/';
+
         return true;
     }
+
     public void Leave()
-{
-    Item = null;
-    Visuals = '.';
-    Console.Write(Visuals);
-}
+    {
+        Item = null;
+        Visuals = '.';
+        Console.Write(Visuals);
+    }
 }

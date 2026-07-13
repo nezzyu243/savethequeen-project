@@ -7,10 +7,14 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-<ItemGroup>
-  <None Update="level1.txt">
-    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-  </None>
-</ItemGroup>
+  <ItemGroup>
+    <None Update="level1.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+
+    <None Update="level2.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
 </Project>
