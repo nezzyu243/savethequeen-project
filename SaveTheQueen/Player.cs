@@ -3,22 +3,35 @@ namespace SaveTheQueen;
 public class Player : Character
 {
     private readonly Dictionary<ConsoleKey, Vector2> _inputMap;
+    private Item? _lastPickedItem;
 
     public string LastMessage { get; private set; } = "";
     public bool ReachedStairs { get; private set; }
     public bool HasWon { get; private set; }
 
-    public Player(char avatar, Vector2 startingPosition, Map map, Dictionary<ConsoleKey, Vector2> inputMap)
+    public Player(char avatar, Vector2 startingPosition, Map map,
+        Dictionary<ConsoleKey, Vector2> inputMap)
         : base(avatar, startingPosition, map, maxHp: 20)
     {
         _inputMap = inputMap;
     }
 
+    public void SetMessage(string message)
+    {
+        LastMessage = message;
+    }
+
     public override bool TakeTurn(Map map, List<Character> others)
+    {
+        return TakeTurn(map, others, null);
+    }
+
+    public bool TakeTurn(Map map, List<Character> npcs, List<Character>? allCharacters)
     {
         bool isPlaying = true;
         ReachedStairs = false;
         LastMessage = "";
+        _lastPickedItem = null;
 
         var input = Console.ReadKey(true);
 
@@ -28,26 +41,28 @@ public class Player : Character
             int targetX = _position.X + direction.X;
             int targetY = _position.Y + direction.Y;
 
-            Npc? target = FindNpcAt(others, targetX, targetY);
+            Npc? target = FindNpcAt(npcs, targetX, targetY);
 
             if (target != null)
             {
-                Fight(target, others);
+                InteractWithNpc(target, map, npcs);
             }
             else
             {
-                bool moved = Move(direction, map);
+                int countBefore = _inventory.Count;
+                bool moved = Move(direction.X, direction.Y, map, allCharacters);
+
                 if (moved)
                 {
+                    if (_inventory.Count > countBefore)
+                    {
+                        _lastPickedItem = _inventory.GetLast();
+                        HandlePickedUpItem();
+                    }
+
                     Cell cell = map.GetCell(_position.X, _position.Y);
                     if (cell.IsStairs())
                         ReachedStairs = true;
-                        Npc? targetAfterMove = FindNpcAt(others, _position.X, _position.Y);
-
-                        if (targetAfterMove != null)
-                    {
-                        Fight(targetAfterMove, others);
-                    }
                 }
             }
         }
@@ -60,7 +75,7 @@ public class Player : Character
                     break;
 
                 case ConsoleKey.I:
-                    ShowInventoryMenu();
+                    ShowInventoryMenu(map);
                     break;
             }
         }
@@ -68,9 +83,9 @@ public class Player : Character
         return isPlaying;
     }
 
-    private static Npc? FindNpcAt(List<Character> others, int x, int y)
+    private static Npc? FindNpcAt(List<Character> npcs, int x, int y)
     {
-        foreach (Character c in others)
+        foreach (Character c in npcs)
         {
             if (c is Npc npc && npc.IsAlive &&
                 npc.GetPosition().X == x && npc.GetPosition().Y == y)
@@ -81,62 +96,124 @@ public class Player : Character
         return null;
     }
 
-   private void Fight(Npc npc, List<Character> others)
-{
-    if (!npc.IsHostile)
+    private void HandlePickedUpItem()
     {
-        HasWon = true;
-        LastMessage = "Uratowalas Krolowa! WYGRANA!";
-        return;
+        if (_lastPickedItem == null) return;
+
+        if (_lastPickedItem.Effect == ItemEffect.Gold)
+        {
+            Gold += _lastPickedItem.Value;
+            _inventory.Remove(_lastPickedItem);
+            LastMessage = $"Podnosisz zloto! +{_lastPickedItem.Value} (lacznie: {Gold})";
+            return;
+        }
+
+        LastMessage = _lastPickedItem.Effect switch
+        {
+            ItemEffect.Key => "Znalazlas klucz! Mozesz otworzyc nim zamkniete drzwi.",
+            ItemEffect.Heal => "Podnosisz miksture leczaca zdrowie.",
+            ItemEffect.QuestItem => "Podnosisz lancuszek ksiezniczki...",
+            _ => $"Podnosisz: {_lastPickedItem.Name}"
+        };
     }
 
-    Console.WriteLine();
-    LastMessage = "Wróg patrzy na Ciebie groźnym spojrzeniem, przygotuj się na starcie!";
-    Console.WriteLine();
-    Console.WriteLine("NPC: Nigdy nie zdobędziesz księżniczki, nie oddam Ci jej bez walki!");
+    private void InteractWithNpc(Npc npc, Map map, List<Character> others)
+    {
+        if (npc.IsQueen)
+        {
+            HandleQueenInteraction(npc);
+        }
+        else if (npc.IsHostile)
+        {
+            Fight(npc, map, others);
+        }
+    }
 
-    Console.WriteLine("Zaczyna się pojedynek!");
-    Console.ReadKey(true);
+    private void HandleQueenInteraction(Npc queen)
+    {
+        var questItem = _inventory.FindItemWithEffect(ItemEffect.QuestItem);
 
-    bool playerWon = PlayRps(npc);
+        if (queen.QuestCompleted)
+        {
+            ShowDialogue("Krolowa",
+                "Jestes moja bohaterka. Nie zapomne tego nigdy...",
+                "*Krolowa wyglada na szczesliwa i czule sie usmiecha.*");
+            HasWon = true;
+            return;
+        }
 
-    if (playerWon)
-{
-    npc.TakeDamage(npc.HP);
-    LastMessage = "Wygrana walka!";
-}
-else
-{
-    TakeDamage(3);
-    LastMessage = "Przegrana runda!";
-}
+        if (questItem != null)
+        {
+            _inventory.Remove(questItem);
+            queen.QuestCompleted = true;
 
-if (!npc.IsAlive)
-{
-    npc.TakeDamage(npc.HP);
-    npc.SetPosition(new Vector2(-1, -1));
+            ShowDialogue("Krolowa",
+                "Moj lancuszek... Odnalazlas go!",
+                "  Nie wiem jak ci dziekowac. Jestes dla mnie czyms wiecej",
+                "  niz tylko wybawczynia... Mam nadzieje, ze to rozumiesz.",
+                "  *Krolowa delikatnie sciska twoja dlon i patrzy ci w oczy.*");
 
-    Item necklace = new Item(
-        'N',
-        npc.GetPosition(),
-        "Naszyjnik księżniczki",
-        ItemEffect.PrincessNecklace,
-        0
-    );
+            HasWon = true;
+        }
+        else
+        {
+            ShowDialogue("Krolowa",
+                "Odnalazlas mnie! Ale... moj lancuszek...",
+                "  Zgubilam go gdy mnie porwano. Czy moglabys go odzyskac?",
+                "  To jedyna pamiatka po mojej matce...");
 
-    _inventory.Add(necklace);
+            LastMessage = "Krolowa prosi o odnalezienie lancuszka (&).";
+        }
+    }
 
-    LastMessage = "Pokonałeś wroga i zdobyłeś naszyjnik księżniczki!";
-    Console.WriteLine(LastMessage);
-    Console.ReadKey(true);
-}
-}
+    private void Fight(Npc npc, Map map, List<Character> others)
+    {
+        const int playerDamage = 4;
+        const int npcDamage = 2;
 
-    private void ShowInventoryMenu()
+        npc.TakeDamage(playerDamage);
+        LastMessage = $"Atakujesz wroga zadajac {playerDamage} obrazen!";
+
+        if (!npc.IsAlive)
+        {
+            others.Remove(npc);
+            LastMessage += " Wrog pokonany!";
+
+            Item? dropped = npc.DropQuestItem();
+            if (dropped != null)
+            {
+                dropped.PlaceOnMap(map);
+                LastMessage += " Upuscil lancuszek ksiezniczki (&)!";
+            }
+        }
+        else
+        {
+            TakeDamage(npcDamage);
+            LastMessage += $" Wrog odpowiada za {npcDamage} obrazen. HP: {HP}/{MaxHP}";
+        }
+    }
+
+    private static void ShowDialogue(string speaker, params string[] lines)
+    {
+        Console.Clear();
+        Console.WriteLine($"=== {speaker} ===");
+        Console.WriteLine();
+
+        foreach (string line in lines)
+        {
+            Console.WriteLine(line);
+        }
+
+        Console.WriteLine();
+        Console.WriteLine("Wcisnij dowolny klawisz, aby kontynuowac...");
+        Console.ReadKey(true);
+    }
+
+    private void ShowInventoryMenu(Map map)
     {
         _inventory.Display();
         Console.WriteLine();
-        Console.WriteLine("U = uzyj, G = wyrzuc, inny klawisz = wyjdz bez akcji");
+        Console.WriteLine("U = uzyj, G = wyrzuc, inny klawisz = wyjdz");
 
         var action = Console.ReadKey(true).Key;
 
@@ -151,7 +228,7 @@ if (!npc.IsAlive)
 
                 if (action == ConsoleKey.U)
                 {
-                    LastMessage = _inventory.UseItem(index);
+                    LastMessage = _inventory.UseItem(index, this);
                 }
                 else
                 {
@@ -165,77 +242,4 @@ if (!npc.IsAlive)
 
         _inventory.Hide();
     }
-    private bool PlayRps(Npc npc)
-{
-    List<string> allowedSigns = new() { "rock", "paper", "scissors" };
-    string endGameCommand = "exit";
-
-    int playerPoints = 0;
-    int npcPoints = 0;
-
-    Console.WriteLine();
-    Console.WriteLine("WALKA RPS (do 2)");
-    Console.WriteLine("rock / paper / scissors lub exit\n");
-
-    while (playerPoints < 2 && npcPoints < 2)
-    {
-        string firstSign;
-
-        do
-        {
-            Console.WriteLine("Twój ruch:");
-            firstSign = Console.ReadLine()?.Trim().ToLower() ?? "";
-        }
-        while (firstSign != endGameCommand && !allowedSigns.Contains(firstSign));
-
-        if (firstSign == endGameCommand)
-            return false;
-
-      string secondSign = allowedSigns[Random.Shared.Next(allowedSigns.Count)];
-      secondSign = secondSign.ToLower();
-
-        Console.WriteLine($"NPC: {secondSign}");
-
-        if (firstSign == secondSign)
-        {
-            Console.WriteLine("Remis!");
-        }
-        else
-        {
-            int firstIndex = allowedSigns.IndexOf(firstSign);
-            int secondIndex = allowedSigns.IndexOf(secondSign);
-
-            int winningIndex = (secondIndex + 1) % allowedSigns.Count;
-            string winningSign = allowedSigns[winningIndex];
-
-            if (firstSign == winningSign)
-            {
-                Console.WriteLine("Wygrywasz rundę!");
-                playerPoints++;
-            }
-            else
-           {
-              Console.WriteLine("NPC wygrywa rundę!");
-              npcPoints++;
-
-             TakeDamage(1);
-           }
-        }
-
-        Console.WriteLine($"Wynik: Ty {playerPoints} - {npcPoints} NPC\n");
-    }
-
-   Console.WriteLine("KONIEC WALKI!");
-   Console.WriteLine("Kliknij dowolny klawisz...");
-   Console.ReadKey(true);
-
-    return playerPoints > npcPoints;
-}
-}
-
-public enum RpsChoice
-{
-    Rock,
-    Paper,
-    Scissors
 }

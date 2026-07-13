@@ -11,6 +11,9 @@ public class Inventory
     }
 
     public bool IsFull => _items.Count >= _capacity;
+    public int Count => _items.Count;
+
+    public Item? GetLast() => _items.Count > 0 ? _items[^1] : null;
 
     public bool Add(Item item)
     {
@@ -49,22 +52,39 @@ public class Inventory
         return item;
     }
 
-    public string UseItem(int index)
+    // Przyjmuje gracza jako parametr, żeby móc faktycznie zmienić jego HP/złoto
+    public string UseItem(int index, Player player)
     {
         Item? item = _items.ElementAtOrDefault(index);
         if (item == null) return "Nie masz takiego przedmiotu.";
 
-        string result = item.Effect switch
-        {
-            ItemEffect.Heal => $"Uzywasz {item.Name}, leczysz {item.Value} HP. (TODO: podlaczyc do Player.HP)",
-            ItemEffect.Gold => $"Sprzedajesz {item.Name} za {item.Value} zlota. (TODO: podlaczyc do Player.Gold)",
-            ItemEffect.Key => "Klucze uzywaja sie same przy zamknietych drzwiach.",
-            _ => "Nic sie nie stalo."
-        };
+        string result;
 
-        if (item.Effect != ItemEffect.Key)
+        switch (item.Effect)
         {
-            Remove(item);
+            case ItemEffect.Heal:
+                player.Heal(item.Value);
+                Remove(item);
+                result = $"Uzywasz {item.Name}, leczysz {item.Value} HP. HP: {player.HP}/{player.MaxHP}";
+                break;
+
+            case ItemEffect.Gold:
+                player.Gold += item.Value;
+                Remove(item);
+                result = $"Sprzedajesz {item.Name} za {item.Value} zlota. Zloto: {player.Gold}";
+                break;
+
+            case ItemEffect.Key:
+                result = "Klucze uzywaja sie same przy zamknietych drzwiach.";
+                break;
+
+            case ItemEffect.QuestItem:
+                result = "Oddaj ten przedmiot Krolowej.";
+                break;
+
+            default:
+                result = "Nic sie nie stalo.";
+                break;
         }
 
         return result;
@@ -91,8 +111,8 @@ public class Inventory
         Console.WriteLine("Wcisnij dowolny klawisz, aby wrocic...");
     }
 
-   public void Hide()
-{
-    Console.Clear();
-}
+    public void Hide()
+    {
+        Console.Clear();
+    }
 }
